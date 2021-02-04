@@ -1,11 +1,4 @@
-// прописать старт и стоп
-
-class CountdownTimer {
-    constructor({ selector, targetDate }) {
-        this.targetDate = targetDate;
-        this.selector = selector;
-
-        this.template = `<div class="field" >
+const template = `<div class="field" >
             <span class="value" data-value="days" >00</span>
                 <span class="label">Days</span>
             </div >
@@ -21,6 +14,13 @@ class CountdownTimer {
                 <span class="value" data-value="secs">00</span>
                 <span class="label">Seconds</span>
             </div>`;
+
+class CountdownTimer {
+    constructor({ selector, targetDate, template }) {
+        this.targetDate = targetDate;
+        this.selector = selector;
+
+        this.template = template;
         this.root = document.querySelector(this.selector);
         this.root.insertAdjacentHTML('beforeend', this.template);
 
@@ -33,9 +33,6 @@ class CountdownTimer {
     }
 
     start() {
-        if (this.intervalId) {
-            return;
-        }
         let deltaTime = Date.now() - this.targetDate;
 
         this.intervalId = setInterval(() => {
@@ -44,20 +41,24 @@ class CountdownTimer {
                 return;
             }
 
-            this.updateTimer(deltaTime -= 1000);
+            this.calculateTime(deltaTime -= 1000);
         }, 1000);
     }
 
-    updateTimer(time) {
+    calculateTime(time) {
         const days = this.pad(Math.floor(time / (1000 * 60 * 60 * 24)));
         const hours = this.pad(Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
         const mins = this.pad(Math.floor((time % (1000 * 60 * 60)) / (1000 * 60)));
         const secs = this.pad(Math.floor((time % (1000 * 60)) / 1000));
 
-        this.daysRef.textContent = days;
-        this.hoursRef.textContent = hours;
-        this.minsRef.textContent = mins;
-        this.secsRef.textContent = secs;
+        this.renderTimer({days,hours,mins,secs});
+    }
+
+    renderTimer(time) {
+        this.daysRef.textContent = time.days;
+        this.hoursRef.textContent = time.hours;
+        this.minsRef.textContent = time.mins;
+        this.secsRef.textContent = time.secs;
     }
 
     pad(value) {
@@ -68,6 +69,7 @@ class CountdownTimer {
 const timer = new CountdownTimer({
     selector: '#timer-1',
     targetDate: new Date('Jul 17, 2019'),
+    template,
 });
 
 timer.start();
